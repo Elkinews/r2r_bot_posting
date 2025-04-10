@@ -1,0 +1,28 @@
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+#items-list tr:last-child td {
+    border-bottom: none;
+}
+
+/* Custom login page styles */
+.login-container {
+    max-width: 400px;
+}
+
+/* Animation for alerts */
+.alert {
+    transition: all 0.3s ease;
+}

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .config-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-label {
+            font-weight: 500;
+        }
+
+        #control-btn {
+            min-width: 100px;
+        }
+
+        #status-indicator {
+            font-size: 0.9rem;
+            padding: 0.35em 0.65em;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">Configuration Manager</a>
+            <div class="ms-auto">
+                <a href="/logout" class="btn btn-outline-light">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card config-card mb-4">
+                    <div class="card-header bg-white">
+                        <h4 class="my-1">Settings</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="config-form">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="start" class="form-label">Start</label>
+                                    <input type="number" class="form-control" id="start" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="end" class="form-label">End</label>
+                                    <input type="number" class="form-control" id="end" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="threads" class="form-label">Threads</label>
+                                    <input type="number" class="form-control" id="threads" min="1" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="skip" class="form-label">Skip</label>
+                                    <input type="number" class="form-control" id="skip" min="0" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="pauseDuration" class="form-label">Pause Duration (ms)</label>
+                                    <input type="number" class="form-control" id="pauseDuration" min="0" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="interval" class="form-label">Interval (ms)</label>
+                                    <input type="number" class="form-control" id="interval" min="0" required>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <button id="control-btn" class="btn btn-success me-2">
+                                    <span id="control-text">Start</span>
+                                    <span id="control-spinner" class="loading-spinner d-none"></span>
+                                </button>
+                                <span id="status-indicator" class="badge bg-secondary">Stopped</span>
+                            </div>
+                            <button id="save-btn" class="btn btn-primary">
+                                <span id="save-text">Save Configuration</span>
+                                <span id="save-spinner" class="loading-spinner d-none"></span>
+                            </button>
+                        </div>
+                        <div id="status-message" class="mt-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                if (!response.ok) throw new Error('Failed to get status');
+
+                const status = await response.json();
+                updateControlButton(status.running);
+                return status.running;
+            } catch (error) {
+                console.error('Status check error:', error);
+                return false;
+            }
+        }
+
+        function updateControlButton(isRunning) {
+            const btn = document.getElementById('control-btn');
+            const text = document.getElementById('control-text');
+            const indicator = document.getElementById('status-indicator');
+
+            if (isRunning) {
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-danger');
+                text.textContent = 'Stop';
+                indicator.className = 'badge bg-success';
+                indicator.textContent = 'Running';
+            } else {
+                btn.classList.remove('btn-danger');
+                btn.classList.add('btn-success');
+                text.textContent = 'Start';
+                indicator.className = 'badge bg-secondary';
+                indicator.textContent = 'Stopped';
+            }
+        }
+
+        async function toggleWorker() {
+            const btn = document.getElementById('control-btn');
+            const text = document.getElementById('control-text');
+            const spinner = document.getElementById('control-spinner');
+            const isRunning = await checkStatus();
+
+            try {
+                btn.disabled = true;
+                text.textContent = isRunning ? 'Stopping...' : 'Starting...';
+                spinner.classList.remove('d-none');
+
+                const endpoint = isRunning ? '/api/stop' : '/api/start';
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Operation failed');
+                }
+
+                const result = await response.json();
+                updateControlButton(result.running);
+                showStatus(`Worker ${result.running ? 'started' : 'stopped'} successfully`, 'success');
+            } catch (error) {
+                console.error('Worker control error:', error);
+                showStatus('Error: ' + error.message, 'danger');
+                // Refresh actual status
+                await checkStatus();
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load config
+            try {
+                const response = await fetch('/api/config');
+                if (!response.ok) throw new Error('Failed to load config');
+
+                const config = await response.json();
+                populateForm(config);
+            } catch (error) {
+                showStatus('Error loading configuration: ' + error.message, 'danger');
+            }
+
+            // Save handler
+            document.getElementById('save-btn').addEventListener('click', saveConfig);
+
+            await checkStatus();
+            document.getElementById('control-btn').addEventListener('click', toggleWorker);
+
+            setInterval(checkStatus, 5000);
+        });
+
+        function populateForm(config) {
+            document.getElementById('start').value = config.start;
+            document.getElementById('end').value = config.end;
+            document.getElementById('threads').value = config.threads;
+            document.getElementById('skip').value = config.skip;
+            document.getElementById('pauseDuration').value = config.pauseDuration;
+            document.getElementById('interval').value = config.interval;
+        }
+
+        async function saveConfig() {
+            const config = {
+                start: document.getElementById('start').value,
+                end: document.getElementById('end').value,
+                threads: document.getElementById('threads').value,
+                skip: document.getElementById('skip').value,
+                pauseDuration: document.getElementById('pauseDuration').value,
+                interval: document.getElementById('interval').value
+            };
+
+            try {
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Failed to save');
+
+                showStatus('Configuration saved successfully!', 'success');
+            } catch (error) {
+                showStatus('Error saving configuration: ' + error.message, 'danger');
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status-message');
+            statusEl.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+
+            setTimeout(() => {
+                const alert = statusEl.querySelector('.alert');
+                if (alert) alert.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+
+</html>

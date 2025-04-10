@@ -1,0 +1,8 @@
+{
+  "start": 1,
+  "end": 10,
+  "threads": 1,
+  "skip": 24,
+  "pauseDuration": 30000,
+  "interval": 5000
+}
