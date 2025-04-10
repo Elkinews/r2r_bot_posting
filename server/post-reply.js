@@ -5,8 +5,6 @@ const csv = require("csv-parser");
 require("dotenv").config();
 const fspromises = require('fs').promises;
 
-
-const THREAD_URL = "https://www.reef2reef.com/threads/live-sale-test-thread.1104806/";
 let messages = []; 
 fs.createReadStream("./server/Example-CSV-BB-Code.csv")
     .pipe(csv({ headers: ["message"], skipLines: 0 })) // Adjust if CSV has no header
@@ -44,7 +42,8 @@ async function postReplies(messages) {
     console.log('Total records: ' + messages.length);
     const data = await fspromises.readFile('./server/data/data.json', 'utf8');
     const jsonData = JSON.parse(data);
-
+    const THREAD_URL = jsonData.threads;
+    
     if(messages.length == jsonData.skip) {
         return;
     }

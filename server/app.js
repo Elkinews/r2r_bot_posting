@@ -104,14 +104,14 @@ app.post('/api/config', (req, res) => {
         const { start, end, threads, skip, pauseDuration, interval } = req.body;
 
         // Validate all fields are numbers
-        if ([start, end, threads, skip, pauseDuration, interval].some(isNaN)) {
+        if ([start, end, skip, pauseDuration, interval].some(isNaN)) {
             return res.status(400).json({ error: 'All fields must be numbers' });
         }
 
         const config = {
             start: parseInt(start),
             end: parseInt(end),
-            threads: parseInt(threads),
+            threads: threads,
             skip: parseInt(skip),
             pauseDuration: parseInt(pauseDuration),
             interval: parseInt(interval)
