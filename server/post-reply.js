@@ -48,14 +48,14 @@ async function postReplies(messages) {
         return;
     }
 
-    // const browser = await puppeteer.launch({ headless: false }); // Set `headless: true` in production
-    const browser = await puppeteer.launch({ 
-        headless: true,  
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox' // Required for Linux without GUI
-          ]
-    }); // For production
+    const browser = await puppeteer.launch({ headless: false }); // Set `headless: true` in production
+    // const browser = await puppeteer.launch({ 
+    //     headless: true,  
+    //     args: [
+    //         '--no-sandbox',
+    //         '--disable-setuid-sandbox' // Required for Linux without GUI
+    //       ]
+    // }); // For production
     const page = await browser.newPage();
 
     // Step 1: Login

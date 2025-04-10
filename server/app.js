@@ -154,8 +154,8 @@ app.post('/api/start', async (req, res) => {
         const config = JSON.parse(fs.readFileSync(DATA_FILE));
 
         // Start the post-reply.js script
-        // workerThread = spawn('node', [path.join(__dirname, 'post-reply.js')]); //For dev
-        workerThread = spawn('xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" node', [path.join(__dirname, 'post-reply.js')]); //For prod
+        workerThread = spawn('node', [path.join(__dirname, 'post-reply.js')]); //For dev
+        // workerThread = spawn('xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" node', [path.join(__dirname, 'post-reply.js')]); //For prod
 
         // Handle process events
         workerThread.stdout.on('data', (data) => {
@@ -181,8 +181,8 @@ app.post('/api/start', async (req, res) => {
         timerId = setInterval(() => {
             if(isClickedStartButton) {
                 if(!isRunning && !workerThread) {
-                    // workerThread = spawn('node', [path.join(__dirname, 'post-reply.js')]);for dev
-                    workerThread = spawn('xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" node', [path.join(__dirname, 'post-reply.js')]); //For prod
+                    workerThread = spawn('node', [path.join(__dirname, 'post-reply.js')]); //for dev
+                    // workerThread = spawn('xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" node', [path.join(__dirname, 'post-reply.js')]); //For prod
 
                     // Handle process events
                     workerThread.stdout.on('data', (data) => {
