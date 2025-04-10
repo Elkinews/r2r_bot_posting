@@ -43,12 +43,19 @@ async function postReplies(messages) {
     const data = await fspromises.readFile('./server/data/data.json', 'utf8');
     const jsonData = JSON.parse(data);
     const THREAD_URL = jsonData.threads;
-    
+
     if(messages.length == jsonData.skip) {
         return;
     }
 
-    const browser = await puppeteer.launch({ headless: false }); // Set `headless: true` in production
+    // const browser = await puppeteer.launch({ headless: false }); // Set `headless: true` in production
+    const browser = await puppeteer.launch({ 
+        headless: true,  
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox' // Required for Linux without GUI
+          ]
+    }); // For production
     const page = await browser.newPage();
 
     // Step 1: Login
