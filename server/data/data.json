@@ -2,7 +2,7 @@
   "start": 1,
   "end": 10,
   "threads": "https://www.reef2reef.com/threads/live-sale-test-thread.1104806/",
-  "skip": 26,
+  "skip": 28,
   "pauseDuration": 30000,
   "interval": 5000
 }
