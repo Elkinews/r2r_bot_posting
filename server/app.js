@@ -195,6 +195,9 @@ app.post('/api/start', async (req, res) => {
                         isRunning = false;
                         workerThread = null;
                     });
+
+                    isClickedStartButton = true;
+                    isRunning = true;
                 }
             }
         }, jsonData.pauseDuration * 1000);
