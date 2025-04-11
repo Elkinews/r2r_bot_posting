@@ -114,7 +114,7 @@ app.post('/api/config', (req, res) => {
             threads: threads,
             skip: parseInt(skip),
             pauseDuration: parseInt(pauseDuration),
-            interval: parseInt(interval)
+            interval: parseFloat(interval)
         };
 
         fs.writeFileSync(DATA_FILE, JSON.stringify(config, null, 2));

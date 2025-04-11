@@ -4,5 +4,5 @@
   "threads": "https://www.reef2reef.com/threads/live-sale-test-thread.1104806",
   "skip": 40,
   "pauseDuration": 30000,
-  "interval": 15000
+  "interval": 1.5
 }
