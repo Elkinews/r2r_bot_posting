@@ -45,8 +45,8 @@ if (!fs.existsSync(DATA_FILE)) {
         end: 100,
         threads: 1,
         skip: 0,
-        pauseDuration: 1000,
-        interval: 500
+        pauseDuration: 10,
+        interval: 1
     }, null, 2));
 }
 
@@ -197,7 +197,7 @@ app.post('/api/start', async (req, res) => {
                     });
                 }
             }
-        }, jsonData.pauseDuration);
+        }, jsonData.pauseDuration * 1000);
         
         res.json({ success: true, running: true });
     } catch (error) {

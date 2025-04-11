@@ -89,7 +89,7 @@ async function postReplies(messages) {
         }
         
 
-    }, jsonData.interval);
+    }, jsonData.interval * 60 * 1000);
 
     // for (let i = jsonData.skip; i< messages.length; i++) {
     //     let message = messages[i];
