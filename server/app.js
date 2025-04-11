@@ -154,7 +154,7 @@ app.post('/api/start', async (req, res) => {
         const config = JSON.parse(fs.readFileSync(DATA_FILE));
 
         // Start the post-reply.js script
-        workerThread = spawn('node', [path.join(__dirname, 'post-reply.js')]); //For dev
+        workerThread = spawn('node', [path.join(__dirname, 'post.js')]); //For dev
         // workerThread = spawn('xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" node', [path.join(__dirname, 'post-reply.js')]); //For prod
 
         // Handle process events
@@ -173,15 +173,12 @@ app.post('/api/start', async (req, res) => {
         });
         isClickedStartButton = true;
         isRunning = true;
-
-
-
         
 
         timerId = setInterval(() => {
             if(isClickedStartButton) {
                 if(!isRunning && !workerThread) {
-                    workerThread = spawn('node', [path.join(__dirname, 'post-reply.js')]); //for dev
+                    workerThread = spawn('node', [path.join(__dirname, 'post.js')]); //for dev
                     // workerThread = spawn('xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" node', [path.join(__dirname, 'post-reply.js')]); //For prod
 
                     // Handle process events
@@ -219,7 +216,7 @@ app.post('/api/stop', (req, res) => {
         workerThread = null;
         isRunning = false;
         isClickedStartButton = false;
-        clearTimeout(timerId); 
+        clearInterval(timerId); 
         res.json({ success: true, running: false });
     } catch (error) {
         res.status(500).json({ error: 'Failed to stop worker', details: error.message });
