@@ -1,8 +1,8 @@
 {
   "start": "2025-04-17 10:00",
-  "end": 10,
+  "end": 100,
   "threads": "https://www.reef2reef.com/threads/live-sale-test-thread.1104806",
-  "skip": 21,
+  "skip": 0,
   "pauseDuration": 30,
   "interval": 1
 }

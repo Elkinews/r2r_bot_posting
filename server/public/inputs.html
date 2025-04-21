@@ -60,10 +60,11 @@
                     <div class="card-body">
                         <form id="config-form">
                             <div class="row g-3">
-                                <div class="col-md-6">
+                                <!-- <div class="col-md-6">
                                     <label for="start" class="form-label">Start</label>
-                                    <input type="text" class="form-control" id="start" required>
-                                </div>
+                                    
+                                </div> -->
+                                <input type="hidden" class="form-control" id="start" required>
                                 <div class="col-md-6">
                                     <label for="end" class="form-label">Post Counts</label>
                                     <input type="number" class="form-control" id="end" required>
@@ -81,8 +82,8 @@
                                     <input type="number" class="form-control" id="pauseDuration" min="0" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="interval" class="form-label">Interval (mins)</label>
-                                    <input type="number" class="form-control" id="interval" min="0" required>
+                                    <!-- <label for="interval" class="form-label">Interval (mins)</label> -->
+                                    <input type="hidden" class="form-control" id="interval" min="0" required>
                                 </div>
                             </div>
                         </form>

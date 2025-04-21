@@ -12,13 +12,52 @@ let resultProcessing = [];
 
 
 let processingIndex = 0;
+
+function parseTimeString(timeString) {
+    // Extract the date and time parts using a regular expression
+    const match = timeString.match(/^(\w{3}) (\d{1,2}), (\d{4}) \((\d{1,2}):(\d{2}) (AM|PM)\)$/i);
+    
+    if (!match) {
+      throw new Error('Invalid time string format');
+    }
+    
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthShort = match[1];
+    const month = monthNames.indexOf(monthShort) + 1; // Convert to 1-12
+    const date = parseInt(match[2], 10);
+    const year = parseInt(match[3], 10);
+    let hour = parseInt(match[4], 10);
+    const minute = parseInt(match[5], 10);
+    const ampm = match[6].toUpperCase();
+    
+    // Convert 12-hour format to 24-hour format
+    if (ampm === 'PM' && hour !== 12) {
+      hour += 12;
+    } else if (ampm === 'AM' && hour === 12) {
+      hour = 0;
+    }
+    
+    // Format month and date as 2-digit strings
+    const formattedMonth = month.toString().padStart(2, '0');
+    const formattedDate = date.toString().padStart(2, '0');
+    
+    return {
+      date: year.toString() + "-" + formattedMonth + '-' + formattedDate,
+      hours: hour.toString().padStart(2, '0'),
+      minutes: minute.toString().padStart(2, '0'),
+      ampm
+    };
+  }
+
 fs.createReadStream("./server/Example-CSV-BB-Code.csv")
     .pipe(csv({ headers: ["message"], skipLines: 0 })) // Adjust if CSV has no header
     .on("data", (row) => {
         // console.log(row);
         if (row.message) {
             messages.push(row.message);
-            resultProcessing.push({ index: processingIndex, schedule: {}, status: false });
+            // console.log(row)
+            // console.log(row['_1']);
+            resultProcessing.push({ index: processingIndex, schedule: parseTimeString(row['_1']), status: false });
             processingIndex ++;
         }
     })
@@ -27,7 +66,7 @@ fs.createReadStream("./server/Example-CSV-BB-Code.csv")
 
         try {
             if (!fs.existsSync(filePath)) {
-                resultProcessing = await makeResultProcessing();
+                // resultProcessing = await makeResultProcessing();
                 fs.writeFileSync(filePath, JSON.stringify(resultProcessing, null, 2));
                 console.log('result.json created with initial data');
             } else {
@@ -46,33 +85,33 @@ fs.createReadStream("./server/Example-CSV-BB-Code.csv")
     });
 
 async function makeResultProcessing() {
-    const data = await fspromises.readFile('./server/data/data.json', 'utf8');
-    const jsonData = JSON.parse(data);
-    const start = jsonData.start;
-    const interval = jsonData.interval;
-    let currentDate = new Date(start);
+    // const data = await fspromises.readFile('./server/data/data.json', 'utf8');
+    // const jsonData = JSON.parse(data);
+    // const start = jsonData.start;
+    // const interval = jsonData.interval;
+    // let currentDate = new Date(start);
 
-    for(let i = 0; i < resultProcessing.length; i++) {
-        const year = currentDate.getFullYear();
-        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-        const day = String(currentDate.getDate()).padStart(2, '0');
-        let hours = currentDate.getHours();
-        const minutes = String(currentDate.getMinutes()).padStart(2, '0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
+    // for(let i = 0; i < resultProcessing.length; i++) {
+    //     const year = currentDate.getFullYear();
+    //     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    //     const day = String(currentDate.getDate()).padStart(2, '0');
+    //     let hours = currentDate.getHours();
+    //     const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+    //     const ampm = hours >= 12 ? 'PM' : 'AM';
 
-        hours = hours % 12;
-        hours = hours ? hours : 12; // the hour '0' should be '12'
-        hours = String(hours).padStart(2, '0');
+    //     hours = hours % 12;
+    //     hours = hours ? hours : 12; // the hour '0' should be '12'
+    //     hours = String(hours).padStart(2, '0');
 
-        resultProcessing[i].schedule = {
-            date: year + '-' + month + '-' + day,
-            hours,
-            minutes,
-            ampm
-        }
+    //     resultProcessing[i].schedule = {
+    //         date: year + '-' + month + '-' + day,
+    //         hours,
+    //         minutes,
+    //         ampm
+    //     }
 
-        currentDate = new Date(currentDate.getTime() + interval * 60000);
-    }
+    //     currentDate = new Date(currentDate.getTime() + interval * 60000);
+    // }
 
     return resultProcessing;
 
@@ -203,8 +242,7 @@ async function postReplies(messages) {
             const jsonData = JSON.parse(data);
             const dataSchedule = await fspromises.readFile('./server/result.json', 'utf8');
             const jsonDataSchedule = JSON.parse(dataSchedule);
-
-            
+           
 
             if (messages.length == jsonData.skip) {
                 clearInterval(intervalId);
