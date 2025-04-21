@@ -15,7 +15,7 @@ let processingIndex = 0;
 
 function parseTimeString(timeString) {
     // Extract the date and time parts using a regular expression
-    const match = timeString.match(/^(\w{3}) (\d{1,2}), (\d{4}) \((\d{1,2}):(\d{2}) (AM|PM)\)$/i);
+    const match = timeString.match(/^(\w{3}) (\d{1,2}), (\d{4}) \((\d{1,2}):(\d{1,2})\s*([AP]M)\)$/i);
     
     if (!match) {
       throw new Error('Invalid time string format');
@@ -31,11 +31,11 @@ function parseTimeString(timeString) {
     const ampm = match[6].toUpperCase();
     
     // Convert 12-hour format to 24-hour format
-    if (ampm === 'PM' && hour !== 12) {
-      hour += 12;
-    } else if (ampm === 'AM' && hour === 12) {
-      hour = 0;
-    }
+    // if (ampm === 'PM' && hour !== 12) {
+    //   hour += 12;
+    // } else if (ampm === 'AM' && hour === 12) {
+    //   hour = 0;
+    // }
     
     // Format month and date as 2-digit strings
     const formattedMonth = month.toString().padStart(2, '0');
@@ -56,7 +56,7 @@ fs.createReadStream("./server/Example-CSV-BB-Code.csv")
         if (row.message) {
             messages.push(row.message);
             // console.log(row)
-            // console.log(row['_1']);
+            console.log(row['_1']);
             resultProcessing.push({ index: processingIndex, schedule: parseTimeString(row['_1']), status: false });
             processingIndex ++;
         }
