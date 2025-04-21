@@ -104,12 +104,12 @@ app.post('/api/config', (req, res) => {
         const { start, end, threads, skip, pauseDuration, interval } = req.body;
 
         // Validate all fields are numbers
-        if ([start, end, skip, pauseDuration, interval].some(isNaN)) {
+        if ([end, skip, pauseDuration, interval].some(isNaN)) {
             return res.status(400).json({ error: 'All fields must be numbers' });
         }
 
         const config = {
-            start: parseInt(start),
+            start: start,
             end: parseInt(end),
             threads: threads,
             skip: parseInt(skip),
@@ -154,7 +154,7 @@ app.post('/api/start', async (req, res) => {
         const config = JSON.parse(fs.readFileSync(DATA_FILE));
 
         // Start the post-reply.js script
-        workerThread = spawn('node', [path.join(__dirname, 'post.js')]); //For dev
+        workerThread = spawn('node', [path.join(__dirname, 'schedule.js')]); //For dev
         // workerThread = spawn('xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" node', [path.join(__dirname, 'post-reply.js')]); //For prod
 
         // Handle process events
@@ -178,7 +178,7 @@ app.post('/api/start', async (req, res) => {
         timerId = setInterval(() => {
             if(isClickedStartButton) {
                 if(!isRunning && !workerThread) {
-                    workerThread = spawn('node', [path.join(__dirname, 'post.js')]); //for dev
+                    workerThread = spawn('node', [path.join(__dirname, 'schedule.js')]); //for dev
                     // workerThread = spawn('xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" node', [path.join(__dirname, 'post-reply.js')]); //For prod
 
                     // Handle process events
@@ -227,7 +227,8 @@ app.post('/api/stop', (req, res) => {
 });
 
 app.get('/api/status', (req, res) => {
-    res.json({ running: isRunning });
+    const config = JSON.parse(fs.readFileSync(DATA_FILE));
+    res.json({ running: isRunning, skip: config.skip });
 });
 
 fs.createReadStream("./server/Example-CSV-BB-Code.csv")
