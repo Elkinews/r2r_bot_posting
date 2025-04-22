@@ -271,7 +271,7 @@ async function postReplies(messages) {
                     await page.type('input[type="text"][name="__schedule[date]"]', jsonDataSchedule[jsonData.skip].schedule.date);
                     await page.type('input[type="number"][name="__schedule[hours]"]', jsonDataSchedule[jsonData.skip].schedule.hours);
                     await page.type('input[type="number"][name="__schedule[minutes]"]', jsonDataSchedule[jsonData.skip].schedule.minutes);
-                    await page.select('select[name="__schedule[is_pm]"]', jsonDataSchedule[jsonData.skip].schedule.ampm);
+                    await page.select('select[name="__schedule[is_pm]"]', jsonDataSchedule[jsonData.skip].schedule.ampm == 'AM' ? '0': '1');
                     await page.click('input[type="checkbox"][name="__schedule[action][publish]"]');
     
                     //End of adding schedule
